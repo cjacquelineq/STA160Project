@@ -9,7 +9,6 @@ win_prect <- read_csv("~/Dropbox/College/2017 Spring/STA 160/Gerrymandering/win_
 
 prect_merged = geo_join(vd, win_prect,
                            "VTDST10", "Precinct")
-table(vd$VTDST10)
 
 NC_distr_12 = cds[(cds@data$STATEFP == NC_code) 
                   & (cds@data$NAMELSAD =="Congressional District 12") , ] #2015

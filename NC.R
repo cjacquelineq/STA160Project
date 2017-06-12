@@ -4,12 +4,18 @@ library(sp)
 library(tigris)
 #https://github.com/walkerke/tigris
 library(rgdal)
+library(mapview)
+#webshot::install_phantomjs()
+
 # Counties that overlap with district 12
 
-county_list = c('Mecklenburg','Cabarrus','Rowan','Davidson','Forsyth','Guilford')
 
+county_list = c('Mecklenburg','Cabarrus','Rowan','Davidson','Forsyth','Guilford')
+county_list_4 = c('Alamance','Orange','Durham','Chatham','Wake','Harnett','Cumberland')
 NC_tracts <- tracts(state = 'NC', 
                      county = county_list)
+NC_tracts_04 <- tracts(state = 'NC', 
+                    county = county_list_4)
 NC_all_tracts <- tracts(state = 'NC')
 
 
@@ -32,6 +38,12 @@ NC_pop_bl = acs.fetch(geo=geo.make(state="NC",
                                    county=county_list,tract="*"),
                      endyear = 2010, dataset="sf1",
                      variable=c("P0010001", "P0060003"))
+
+NC_pop_bl_4 = acs.fetch(geo=geo.make(state="NC",
+                                   county=county_list_4,tract="*"),
+                      endyear = 2010, dataset="sf1",
+                      variable=c("P0010001", "P0060003"))
+
 NC_all_pop_bl = acs.fetch(geo=geo.make(state="NC",county = "*",tract="*"),
                       endyear = 2010, dataset="sf1",
                       variable=c("P0010001", "P0060003"))
@@ -43,6 +55,11 @@ NC_pop_low_inc = acs.fetch(geo=geo.make(state="NC",
                                    county=county_list,tract="*"),
                       endyear = 2010, dataset="acs",span=5,
                       variable=c("B17025_001","B17025_002"))
+
+NC_pop_low_inc_04 = acs.fetch(geo=geo.make(state="NC",
+                                        county=county_list_4,tract="*"),
+                           endyear = 2010, dataset="acs",span=5,
+                           variable=c("B17025_001","B17025_002"))
 
 NC_all_low_inc = acs.fetch(geo=geo.make(state="NC",county = "*",tract="*"),
                           endyear = 2010, dataset="acs",span=5,
@@ -78,8 +95,12 @@ NC_all_ba_edu = acs.fetch(geo=geo.make(state="NC",
 col1 = NC_pop_bl@geography$NAME
 col2 = (NC_pop_bl@estimate[,"P0060003"] 
         / NC_pop_bl@estimate[,"P0010001"])
+colblk_4 = (NC_pop_bl_4@estimate[,"P0060003"] 
+            / NC_pop_bl_4@estimate[,"P0010001"])
 colloinc = (NC_pop_low_inc@estimate[,"B17025_002"] 
         / NC_pop_low_inc@estimate[,"B17025_001"])
+colloinc_4 = (NC_pop_low_inc_04@estimate[,"B17025_002"] 
+            / NC_pop_low_inc_04@estimate[,"B17025_001"])
 colhiinc = (NC_pop_high_inc@estimate[,"B17025_009"] 
           / NC_pop_high_inc@estimate[,"B17025_001"])
 colbaedu = (NC_pop_ba_edu@estimate[,"B23006_023"] 
@@ -98,7 +119,9 @@ colbaeduall = (NC_all_ba_edu@estimate[,"B23006_023"]
 
 
 NC_black_df <- data.frame(col1, col2)
+NC_black_df_4 <- data.frame(NC_pop_bl_4@geography$NAME, colblk_4)
 NC_lowinc_df <- data.frame(col1, colloinc)
+NC_lowinc_df_4 <- data.frame(NC_pop_bl_4@geography$NAME, colloinc_4)
 NC_highinc_df <- data.frame(col1, colhiinc)
 NC_baedu_df <- data.frame(col1, colbaedu)
 NC_blkall_df <- data.frame(NC_all_pop_bl@geography$NAME, colblkall)
@@ -108,7 +131,9 @@ NC_baeduall_df <- data.frame(NC_all_pop_bl@geography$NAME, colbaeduall)
 
 
 colnames(NC_black_df) <- c("NAMELSAD", "perc_black")
+colnames(NC_black_df_4) <- c("NAMELSAD", "perc_black")
 colnames(NC_lowinc_df) <- c("NAMELSAD", "perc_low_income")
+colnames(NC_lowinc_df_4) <- c("NAMELSAD", "perc_low_income")
 colnames(NC_highinc_df) <- c("NAMELSAD", "perc_high_income")
 colnames(NC_baedu_df) <- c("NAMELSAD", "perc_ba_edu")
 colnames(NC_blkall_df) <- c("NAMELSAD", "perc_black")
@@ -120,8 +145,12 @@ colnames(NC_baeduall_df) <- c("NAMELSAD", "perc_ba_edu")
 
 NC_black_merged = geo_join(NC_tracts, NC_black_df,
                            "NAMELSAD", "NAMELSAD")
+NC_black_merged_4 = geo_join(NC_tracts_04, NC_black_df_4,
+                           "NAMELSAD", "NAMELSAD")
 NC_lowinc_merged = geo_join(NC_tracts, NC_lowinc_df,
                            "NAMELSAD", "NAMELSAD")
+NC_lowinc_merged_4 = geo_join(NC_tracts_04, NC_lowinc_df_4,
+                            "NAMELSAD", "NAMELSAD")
 NC_highinc_merged = geo_join(NC_tracts, NC_highinc_df,
                             "NAMELSAD", "NAMELSAD")
 NC_baedu_merged = geo_join(NC_tracts, NC_baedu_df,
@@ -148,7 +177,9 @@ cds = congressional_districts()
 NC_code = "37"
 NC_shp_2015 = cds[(cds@data$STATEFP == NC_code), ]
 NC_distr_12 = cds[(cds@data$STATEFP == NC_code) 
-                 & (cds@data$NAMELSAD =="Congressional District 12") , ] #2015
+                 & (cds@data$NAMELSAD =="Congressional District 12") , ]
+NC_distr_04 = cds[(cds@data$STATEFP == NC_code) 
+                  & (cds@data$NAMELSAD =="Congressional District 4") , ]#2015
 NC_distr_12_2010 = readOGR("/Users/chenjingqi/Dropbox/College/2017 Spring/STA 160/Gerrymandering/Congressional Districts/NC_Shapefiles/NC_2010_CD12.shp")
 NC_shp_2010 = readOGR("/Users/chenjingqi/Dropbox/College/2017 Spring/STA 160/STA160Project/Congressional Districts/Shapefiles/gz_2010_37_500_11_500k/gz_2010_37_500_11_500k.shp")
 #cds11 = congressional_districts(year = 2011)
@@ -213,14 +244,14 @@ leaflet() %>%
               smoothFactor = 0.5, group="NC_distr_12") %>%
   addPolygons(data =  NC_distr_12_2010, 
               fillOpacity = 0.,
-              stroke=TRUE, opacity=1,
+              stroke=TRUE, opacity=0.5,
               weight = 1.5, color="red",
               smoothFactor = 0.5, group=" NC_distr_12_2010") %>%
-  addPolygons(data =  vd, 
-              fillOpacity = 0.,
-              stroke=TRUE, opacity=0.2,
-              weight = 1.5, color="orange",
-              smoothFactor = 0.5, group=" vd",popup = vd$VTDST10) %>%
+  #addPolygons(data =  vd, 
+  #            fillOpacity = 0.,
+  #            stroke=TRUE, opacity=0.2,
+  #            weight = 1.5, color="orange",
+  #            smoothFactor = 0.5, group=" vd",popup = vd$VTDST10) %>%
   addLegend(pal = pal, 
             values = NC_black_merged$perc_black, 
             position = "bottomright", 
@@ -229,6 +260,8 @@ leaflet() %>%
     overlayGroups = c("Black Dist 12"),
     options = layersControlOptions(collapsed = FALSE)
   )
+
+mapshot(m1, file = "~/NC12Black.png")
 
 
 ###### Black All
@@ -262,6 +295,39 @@ leaflet() %>%
 
 
 
+###### Black 04
+pal <- colorQuantile("Greens", NULL, n=5)
+leaflet() %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  addPolygons(data = NC_black_merged_4, 
+              fillColor = ~pal(NC_black_merged_4$perc_black), 
+              fillOpacity = 0.7, 
+              weight = 0.2, 
+              smoothFactor = 0.2) %>%
+  addPolygons(data = NC_distr_04, 
+              fillOpacity = 0.,
+              stroke=TRUE, opacity=1,
+              weight = 1.5, color="black",
+              smoothFactor = 0.5, group="NC_distr_04") %>%
+  addLegend(pal = pal, 
+            values = NC_black_merged_4$perc_black, 
+            position = "bottomright", 
+            title = "Percentage Black or African American") %>%
+  addLayersControl(
+    overlayGroups = c("Black Dist 04"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -284,7 +350,7 @@ leaflet() %>%
   
   addPolygons(data =  NC_distr_12_2010, 
               fillOpacity = 0.,
-              stroke=TRUE, opacity=1,
+              stroke=TRUE, opacity=0.5,
               weight = 1.5, color="red",
               smoothFactor = 0.5, group=" NC_distr_12_2010") %>%
   addLegend(pal = pal, 
@@ -292,7 +358,7 @@ leaflet() %>%
             position = "bottomright", 
             title = "Percentage low income") %>%
   addLayersControl(
-    overlayGroups = c("NC_distr_12"),
+    overlayGroups = c("Low Income CD12"),
     options = layersControlOptions(collapsed = FALSE)
   )
 
@@ -327,6 +393,35 @@ leaflet() %>%
     overlayGroups = c("NC_shp_2015"),
     options = layersControlOptions(collapsed = FALSE)
   )
+
+
+
+###### low income 04
+pal <- colorQuantile("Blues", NULL, n=5)
+leaflet() %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  addPolygons(data = NC_lowinc_merged_4, 
+              fillColor = ~pal(NC_lowinc_merged_4$perc_low_income), 
+              fillOpacity = 0.7, 
+              weight = 0.2, 
+              smoothFactor = 0.2) %>%
+  addPolygons(data = NC_distr_04, 
+              fillOpacity = 0.,
+              stroke=TRUE, opacity=1,
+              weight = 1.5, color="black",
+              smoothFactor = 0.5, group="NC_distr_04") %>%
+  addLegend(pal = pal, 
+            values = NC_lowinc_merged_4$perc_low_income, 
+            position = "bottomright", 
+            title = "Percentage low income") %>%
+  addLayersControl(
+    overlayGroups = c("Low Income Dist 04"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+
+
+
+
 
 
 
@@ -395,7 +490,7 @@ leaflet() %>%
 
 ####### Education
 
-pal <- colorQuantile("Reds", NULL, n=5)
+pal <- colorQuantile("Purples", NULL, n=5)
 leaflet() %>%
   addProviderTiles("CartoDB.Positron") %>%
   addPolygons(data = NC_baedu_merged, 
@@ -412,14 +507,14 @@ leaflet() %>%
   addPolygons(data =  NC_distr_12_2010, 
               fillOpacity = 0.,
               stroke=TRUE, opacity=0.5,
-              weight = 1.5, color="green",
+              weight = 1.5, color="red",
               smoothFactor = 0.5, group=" NC_distr_12_2010") %>%
   addLegend(pal = pal, 
             values = NC_baedu_merged$perc_ba_edu, 
             position = "bottomright", 
             title = "Percentage Bachelor's degree or higher") %>%
   addLayersControl(
-    overlayGroups = c("NC_distr_12"),
+    overlayGroups = c("Percentage Bachelor's degree or higher CD12"),
     options = layersControlOptions(collapsed = FALSE)
   )
 
