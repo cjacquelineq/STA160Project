@@ -229,7 +229,7 @@ popup_baeduall <- paste0("<span style='color:#7f0000'><strong>
 
 ###### Black
 pal <- colorQuantile("Greens", NULL, n=5)
-leaflet() %>%
+m1 = leaflet() %>%
   addProviderTiles("CartoDB.Positron") %>%
   addPolygons(data = NC_black_merged, 
               fillColor = ~pal(NC_black_merged$perc_black), 
@@ -260,13 +260,14 @@ leaflet() %>%
     overlayGroups = c("Black Dist 12"),
     options = layersControlOptions(collapsed = FALSE)
   )
-
-mapshot(m1, file = "~/NC12Black.png")
+library(htmlwidgets)
+saveWidget(m1, file="Black 12 NC.html")
+#mapshot(m1, file = "~/NC12Black.png")
 
 
 ###### Black All
 pal <- colorQuantile("Greens", NULL, n=5)
-leaflet() %>%
+m2 = leaflet() %>%
   addProviderTiles("CartoDB.Positron") %>%
   addPolygons(data = NC_blkall_merged, 
               fillColor = ~pal(NC_blkall_merged$perc_black), 
@@ -293,11 +294,11 @@ leaflet() %>%
     options = layersControlOptions(collapsed = FALSE)
   )
 
-
+saveWidget(m2, file="Black NC.html")
 
 ###### Black 04
 pal <- colorQuantile("Greens", NULL, n=5)
-leaflet() %>%
+m3 = leaflet() %>%
   addProviderTiles("CartoDB.Positron") %>%
   addPolygons(data = NC_black_merged_4, 
               fillColor = ~pal(NC_black_merged_4$perc_black), 
@@ -319,6 +320,7 @@ leaflet() %>%
   )
 
 
+saveWidget(m3, file="Black 04 NC.html")
 
 
 
@@ -334,7 +336,7 @@ leaflet() %>%
 ###### Low Income
 pal <- colorQuantile("Blues", NULL, n=5)
 
-leaflet() %>%
+low_inc_12 = leaflet() %>%
   addProviderTiles("CartoDB.Positron") %>%
   addPolygons(data = NC_lowinc_merged, 
               fillColor = ~pal(NC_lowinc_merged$perc_low_income), 
@@ -361,12 +363,13 @@ leaflet() %>%
     overlayGroups = c("Low Income CD12"),
     options = layersControlOptions(collapsed = FALSE)
   )
+saveWidget(low_inc_12, file="Low Income 12 NC.html")
 
 
 ###### Low Income All
 pal <- colorQuantile("Blues", NULL, n=5)
 
-leaflet() %>%
+low_inc_all = leaflet() %>%
   addProviderTiles("CartoDB.Positron") %>%
   addPolygons(data = NC_lowincall_merged, 
               fillColor = ~pal(NC_lowincall_merged$perc_low_income), 
@@ -394,11 +397,13 @@ leaflet() %>%
     options = layersControlOptions(collapsed = FALSE)
   )
 
+saveWidget(low_inc_all, file="Low Income all NC.html")
+
 
 
 ###### low income 04
 pal <- colorQuantile("Blues", NULL, n=5)
-leaflet() %>%
+low_inc_04 = leaflet() %>%
   addProviderTiles("CartoDB.Positron") %>%
   addPolygons(data = NC_lowinc_merged_4, 
               fillColor = ~pal(NC_lowinc_merged_4$perc_low_income), 
@@ -419,7 +424,7 @@ leaflet() %>%
     options = layersControlOptions(collapsed = FALSE)
   )
 
-
+saveWidget(low_inc_04, file="Low Income all NC.html")
 
 
 
@@ -457,6 +462,7 @@ leaflet() %>%
     options = layersControlOptions(collapsed = FALSE)
   )
 
+
 ###### Highincome All
 pal <- colorQuantile("Purples", NULL, n=5)
 
@@ -491,7 +497,7 @@ leaflet() %>%
 ####### Education
 
 pal <- colorQuantile("Purples", NULL, n=5)
-leaflet() %>%
+edu_12 = leaflet() %>%
   addProviderTiles("CartoDB.Positron") %>%
   addPolygons(data = NC_baedu_merged, 
               fillColor = ~pal(NC_baedu_merged$perc_ba_edu), 
@@ -517,11 +523,12 @@ leaflet() %>%
     overlayGroups = c("Percentage Bachelor's degree or higher CD12"),
     options = layersControlOptions(collapsed = FALSE)
   )
+saveWidget(edu_12, file="Education 12 NC.html")
 
 ####### Education All
 
-pal <- colorQuantile("Reds", NULL, n=5)
-leaflet() %>%
+#pal <- colorQuantile("Reds", NULL, n=5)
+edu_all = leaflet() %>%
   addProviderTiles("CartoDB.Positron") %>%
   addPolygons(data = NC_baeduall_merged, 
               fillColor = ~pal(NC_baeduall_merged$perc_ba_edu), 
@@ -548,5 +555,6 @@ leaflet() %>%
     options = layersControlOptions(collapsed = FALSE)
   )
 
+saveWidget(edu_all, file="Education 12 NC.html")
 
 
